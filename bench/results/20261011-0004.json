@@ -1,0 +1,238 @@
+{
+ "timestamp": "20261011-0004",
+ "base": "http://localhost:4000",
+ "models": {
+  "nvidia-glm-53": {
+   "tool": {
+    "ok": true,
+    "latency_s": 3.1,
+    "out_tokens": 32,
+    "deployment": "nvidia_nim/z-ai/glm-5.3",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 7.02,
+    "out_tokens": 428,
+    "deployment": "nvidia_nim/z-ai/glm-5.3",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 4.07,
+    "out_tokens": 61,
+    "deployment": "nvidia_nim/z-ai/glm-5.3",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "nvidia-glm53-flash": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.65,
+    "out_tokens": 35,
+    "deployment": "nvidia_nim/z-ai/glm-5.3-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 9.03,
+    "out_tokens": 684,
+    "deployment": "nvidia_nim/z-ai/glm-5.3-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 4.24,
+    "out_tokens": 58,
+    "deployment": "nvidia_nim/z-ai/glm-5.3-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "nvidia-nemotron-550b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 2.23,
+    "out_tokens": 54,
+    "deployment": "nvidia_nim/nvidia/nemotron-3-ultra-550b-a55b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 4.22,
+    "out_tokens": 324,
+    "deployment": "nvidia_nim/nvidia/nemotron-3-ultra-550b-a55b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 1.38,
+    "out_tokens": 74,
+    "deployment": "nvidia_nim/nvidia/nemotron-3-ultra-550b-a55b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "nvidia-nemotron-120b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.66,
+    "out_tokens": 69,
+    "deployment": "nvidia_nim/nvidia/nemotron-3-super-120b-a12b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 1.45,
+    "out_tokens": 228,
+    "deployment": "nvidia_nim/nvidia/nemotron-3-super-120b-a12b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 0.63,
+    "out_tokens": 49,
+    "deployment": "nvidia_nim/nvidia/nemotron-3-super-120b-a12b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "nvidia-nemotron-lightning": {
+   "tool": {
+    "ok": true,
+    "latency_s": 1.59,
+    "out_tokens": 54,
+    "deployment": "nvidia_nim/nvidia/nemotron-3.5-lightning-30b-a3b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 9.87,
+    "out_tokens": 551,
+    "deployment": "nvidia_nim/nvidia/nemotron-3.5-lightning-30b-a3b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 2.38,
+    "out_tokens": 331,
+    "deployment": "nvidia_nim/nvidia/nemotron-3.5-lightning-30b-a3b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "nvidia-gemma-31b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 26.13,
+    "out_tokens": 18,
+    "deployment": "nvidia_nim/google/gemma-4-31b-it",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 136.44,
+    "out_tokens": 108,
+    "deployment": "nvidia_nim/google/gemma-4-31b-it",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 31.53,
+    "out_tokens": 13,
+    "deployment": "nvidia_nim/google/gemma-4-31b-it",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "nvidia-gptoss-20b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 1.49,
+    "out_tokens": 42,
+    "deployment": "nvidia_nim/openai/gpt-oss-20b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 2.44,
+    "out_tokens": 116,
+    "deployment": "nvidia_nim/openai/gpt-oss-20b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 2.17,
+    "out_tokens": 104,
+    "deployment": "nvidia_nim/openai/gpt-oss-20b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "nvidia-nemotron-embed": {
+   "tool": {
+    "ok": false,
+    "latency_s": 0.55,
+    "out_tokens": 44,
+    "deployment": "groq/openai/gpt-oss-120b",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to groq/openai/gpt-oss-120b (primary failed)"
+   },
+   "code": {
+    "ok": false,
+    "latency_s": 0.69,
+    "out_tokens": 106,
+    "deployment": "groq/openai/gpt-oss-120b",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to groq/openai/gpt-oss-120b (primary failed)"
+   },
+   "json": {
+    "ok": false,
+    "latency_s": 0.37,
+    "out_tokens": 76,
+    "deployment": "groq/openai/gpt-oss-120b",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to groq/openai/gpt-oss-120b (primary failed)"
+   }
+  }
+ }
+}

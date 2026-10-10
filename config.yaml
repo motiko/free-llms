@@ -1,0 +1,292 @@
+model_list:
+
+# Google https://aistudio.google.com/
+
+  - model_name: google-gemma-31b
+    litellm_params:
+      model: gemini/gemma-4-31b-it
+      api_key: os.environ/GEMINI_API_KEY
+
+  - model_name: google-gemma-26b
+    litellm_params:
+      model: gemini/gemma-4-26b-a4b-it
+      api_key: os.environ/GEMINI_API_KEY
+
+  - model_name: google-gemini-flashlite
+    litellm_params:
+      model: gemini/gemini-3.5-flash-lite
+      api_key: os.environ/GEMINI_API_KEY
+
+# GROQ https://console.groq.com/keys
+
+  - model_name: groq-gptoss-120b
+    litellm_params:
+      model: groq/openai/gpt-oss-120b
+      api_key: os.environ/GROQ_API_KEY
+
+  - model_name: groq-gptoss-20b
+    litellm_params:
+      model: groq/openai/gpt-oss-20b
+      api_key: os.environ/GROQ_API_KEY
+
+  - model_name: groq-qwen-27b
+    litellm_params:
+      model: groq/qwen/qwen3.8-27b
+      api_key: os.environ/GROQ_API_KEY
+
+# Ollama https://ollama.com/settings
+
+  - model_name: ollama-gptoss-120b  # Ollama Cloud, general + reasoning
+    litellm_params:
+      model: openai/gpt-oss:120b
+      api_base: https://ollama.com/v1
+      api_key: os.environ/OLLAMA_API_KEY
+  - model_name: ollama-gemma-31b # Ollama Cloud, coding (plan allows: gemma4:31b, gpt-oss:120b, gpt-oss:20b, nemotron-3-nano:30b, nemotron-3-super, nemotron-3-ultra)
+    litellm_params:
+      model: openai/gemma4:31b
+      api_base: https://ollama.com/v1
+      api_key: os.environ/OLLAMA_API_KEY
+
+# OpenRouter https://openrouter.ai/settings/keys
+# Free tier (":free" ids): no cost, but rate limited (~20 req/min, 50 req/day; 1000/day once the
+# account has bought $10 of credits). Model availability on the free tier changes often; check
+# https://openrouter.ai/models?q=free before relying on one.
+# No GLM model is on the free tier (checked 2026-10-10); openrouter-glm-flash is the cheapest GLM and is PAID.
+# Left out on purpose: gemma-4-*:free (shared Google AI Studio pool, rate-limited upstream; use google-* instead) and
+# thinkingmachines/inkling*:free (403, only served to approved agentic apps).
+
+  - model_name: openrouter-free                   # auto-router: picks a random free model
+    litellm_params:
+      model: openrouter/openrouter/free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-nemotron-550b          # Nemotron 3 Ultra 550B-A55B, 1M ctx, reasoning
+    litellm_params:
+      model: openrouter/nvidia/nemotron-3-ultra-550b-a55b:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-nemotron-120b          # Nemotron 3 Super 120B-A12B
+    litellm_params:
+      model: openrouter/nvidia/nemotron-3-super-120b-a12b:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-nemotron-30b           # Nemotron 3 Nano Omni 30B-A3B, reasoning
+    litellm_params:
+      model: openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-nemotron-lightning     # Nemotron 3.5 Lightning, 1M ctx, low latency
+    litellm_params:
+      model: openrouter/nvidia/nemotron-3.5-lightning:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-ling-flash             # inclusionAI Ling 3.1 Flash 560B-A25B (zero priced, no :free suffix)
+    litellm_params:
+      model: openrouter/inclusionai/ling-3.1-flash
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-northcode-mini         # Cohere North Mini Code, coding
+    litellm_params:
+      model: openrouter/cohere/north-mini-code:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-laguna-s               # poolside Laguna S 2.1, coding
+    litellm_params:
+      model: openrouter/poolside/laguna-s-2.1:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-laguna-xs              # poolside Laguna XS 2.1, coding
+    litellm_params:
+      model: openrouter/poolside/laguna-xs-2.1:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-apodex-mini            # Apodex 1.1 Mini
+    litellm_params:
+      model: openrouter/apodex/apodex-1.1-mini:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-dots-note              # dots.studio dots-3-note preview, 512k ctx
+    litellm_params:
+      model: openrouter/dots-studio/dots-3-note-preview:free
+      api_key: os.environ/OPENROUTER_API_KEY
+
+  - model_name: openrouter-glm-flash              # PAID (cheap): Z.ai GLM 5.3 Flash, 1M ctx, coding / agents
+    litellm_params:
+      model: openrouter/z-ai/glm-5.3-flash
+      api_key: os.environ/OPENROUTER_API_KEY
+
+# Z.ai https://z.ai/manage-apikey/apikeys
+# The *-Flash models are free on Z.ai's own API (pricing page checked 2026-10-10). Limits are per account
+# and concurrency based (free tier: 1 concurrent request); newer GLM 5.x models are paid.
+
+  - model_name: zai-glm47-flash                   # GLM-4.7-Flash, free, coding / agents, tool calling works
+    litellm_params:
+      model: zai/glm-4.7-flash
+      api_key: os.environ/ZAI_API_KEY
+
+  - model_name: zai-glm45-flash                   # GLM-4.5-Flash, free, older generation
+    litellm_params:
+      model: zai/glm-4.5-flash
+      api_key: os.environ/ZAI_API_KEY
+
+  - model_name: zai-glm46v-flash                  # GLM-4.6V-Flash, free, vision
+    litellm_params:
+      model: zai/glm-4.6v-flash
+      api_key: os.environ/ZAI_API_KEY
+
+# Mistral https://console.mistral.ai/api-keys
+# Free "Experiment" tier (checked 2026-10-10): Codestral and Ministral work (750 req/min, 1.3M tokens/min
+# per the response headers); Mistral Small / Medium / Magistral return 429 with a limit of 0 on this tier.
+# Free tier requires opting into data training; Labs models need enabling in the admin console.
+
+  - model_name: mistral-codestral                 # Codestral 25.08, coding + FIM, 256k ctx
+    litellm_params:
+      model: mistral/codestral-latest
+      api_key: os.environ/MISTRAL_API_KEY
+
+  - model_name: mistral-ministral-14b             # Ministral 3 14B, general, vision
+    litellm_params:
+      model: mistral/ministral-14b-latest
+      api_key: os.environ/MISTRAL_API_KEY
+
+  - model_name: mistral-ministral-8b
+    litellm_params:
+      model: mistral/ministral-8b-latest
+      api_key: os.environ/MISTRAL_API_KEY
+
+  - model_name: mistral-ministral-3b              # smallest, bulk / classification
+    litellm_params:
+      model: mistral/ministral-3b-latest
+      api_key: os.environ/MISTRAL_API_KEY
+
+# NVIDIA NIM https://build.nvidia.com/settings/api-keys
+# Free developer tier, no card (checked 2026-10-11): ~40 req/min, 80 models. GLM 5.3 (full) is free here.
+# kimi-k3 and deepseek-v4.1-flash are listed but drop the connection without a reply, so they are left out.
+
+  - model_name: nvidia-glm-53                     # Z.ai GLM 5.3 (full), frontier open model, reasoning / agents
+    litellm_params:
+      model: nvidia_nim/z-ai/glm-5.3
+      api_key: os.environ/NVIDIA_API_KEY
+
+  - model_name: nvidia-glm53-flash                # Z.ai GLM 5.3 Flash
+    litellm_params:
+      model: nvidia_nim/z-ai/glm-5.3-flash
+      api_key: os.environ/NVIDIA_API_KEY
+
+  - model_name: nvidia-nemotron-550b              # Nemotron 3 Ultra 550B-A55B
+    litellm_params:
+      model: nvidia_nim/nvidia/nemotron-3-ultra-550b-a55b
+      api_key: os.environ/NVIDIA_API_KEY
+
+  - model_name: nvidia-nemotron-120b              # Nemotron 3 Super 120B-A12B
+    litellm_params:
+      model: nvidia_nim/nvidia/nemotron-3-super-120b-a12b
+      api_key: os.environ/NVIDIA_API_KEY
+
+  - model_name: nvidia-nemotron-lightning         # Nemotron 3.5 Lightning 30B-A3B, low latency
+    litellm_params:
+      model: nvidia_nim/nvidia/nemotron-3.5-lightning-30b-a3b
+      api_key: os.environ/NVIDIA_API_KEY
+
+  - model_name: nvidia-gemma-31b
+    litellm_params:
+      model: nvidia_nim/google/gemma-4-31b-it
+      api_key: os.environ/NVIDIA_API_KEY
+
+  - model_name: nvidia-gptoss-20b
+    litellm_params:
+      model: nvidia_nim/openai/gpt-oss-20b
+      api_key: os.environ/NVIDIA_API_KEY
+
+  - model_name: nvidia-nemotron-embed             # Nemotron 3 Embed 1B, 2048 dims; the only embedding model while local ones are off
+    litellm_params:
+      model: nvidia_nim/nvidia/nemotron-3-embed-1b
+      api_key: os.environ/NVIDIA_API_KEY
+      input_type: query                           # NIM embeddings require input_type; "query" is the sensible default for RAG lookups
+    model_info:
+      mode: embedding
+
+# Local models (local-*, agent-remote) live commented out in config.local.yaml (gitignored).
+
+router_settings:
+  enable_tag_filtering: true          # only used by the (disabled) agent-remote entries
+  num_retries: 2                      # retries on the same deployment before falling back
+  allowed_fails: 3                    # failures within cooldown window before a deployment is cooled down
+  cooldown_time: 60                   # seconds a failing deployment is skipped
+
+  # Role aliases: clients can request "smart", "fast", "code", "cheap", "embed" instead of a provider name.
+  model_group_alias:
+    smart: groq-gptoss-120b           # gpt-oss-120b, reasoning / general
+    fast: groq-gptoss-20b             # gpt-oss-20b, low latency
+    code: groq-qwen-27b               # qwen3.8-27b, coding
+    cheap: google-gemini-flashlite    # gemini-3.5-flash-lite, bulk / cheap
+    embed: nvidia-nemotron-embed      # nemotron-3-embed-1b, 2048 dims
+
+  # Chains ordered by the benchmark in bench/results/ (tool call + code + json, latency through the proxy).
+  # Groq is fastest (<1s), Ollama Cloud and NVIDIA Nemotron 120B next (~1s), Z.ai GLM Flash and NVIDIA GLM 5.3
+  # are solid but slower (4-10s, reasoning tokens). Gemma 4 31B on Google and NVIDIA is 30-130s per call, so it
+  # sits at the end of every chain; the Ollama Cloud copy of it is fast. Codestral sometimes answers tool calls in
+  # prose, so it stays behind the others in the code chain.
+  fallbacks:
+    # Role aliases
+    - smart: [ollama-gptoss-120b, nvidia-nemotron-120b, nvidia-glm-53, nvidia-nemotron-550b, groq-qwen-27b, openrouter-nemotron-550b]
+    - fast: [google-gemini-flashlite, mistral-ministral-14b, nvidia-nemotron-120b, nvidia-gptoss-20b, google-gemma-26b]
+    - code: [ollama-gemma-31b, nvidia-glm-53, zai-glm47-flash, mistral-codestral, groq-gptoss-120b, openrouter-northcode-mini]
+    - cheap: [mistral-ministral-8b, groq-gptoss-20b, mistral-ministral-3b, google-gemma-26b, openrouter-free]
+
+    # Same chains keyed by the deployment names behind the aliases (LiteLLM looks fallbacks up by the requested name)
+    - groq-gptoss-120b: [ollama-gptoss-120b, nvidia-nemotron-120b, nvidia-glm-53, nvidia-nemotron-550b, groq-qwen-27b, openrouter-nemotron-550b]
+    - groq-gptoss-20b: [google-gemini-flashlite, mistral-ministral-14b, nvidia-nemotron-120b, nvidia-gptoss-20b, google-gemma-26b]
+    - groq-qwen-27b: [ollama-gemma-31b, nvidia-glm-53, zai-glm47-flash, mistral-codestral, groq-gptoss-120b, openrouter-northcode-mini]
+    - google-gemini-flashlite: [mistral-ministral-8b, groq-gptoss-20b, mistral-ministral-3b, google-gemma-26b, openrouter-free]
+
+    # Smart tier
+    - ollama-gptoss-120b: [groq-gptoss-120b, nvidia-nemotron-120b, nvidia-glm-53, ollama-gemma-31b]
+    - nvidia-glm-53: [nvidia-nemotron-550b, groq-gptoss-120b, ollama-gptoss-120b]
+    - nvidia-nemotron-550b: [nvidia-glm-53, nvidia-nemotron-120b, groq-gptoss-120b, openrouter-nemotron-550b]
+    - nvidia-nemotron-120b: [nvidia-nemotron-550b, groq-gptoss-120b, openrouter-nemotron-120b]
+
+    # Fast / cheap tier
+    - google-gemma-26b: [google-gemini-flashlite, mistral-ministral-14b, groq-gptoss-20b]
+    - mistral-ministral-14b: [mistral-ministral-8b, groq-gptoss-20b, google-gemini-flashlite]
+    - mistral-ministral-8b: [mistral-ministral-3b, groq-gptoss-20b, google-gemini-flashlite]
+    - mistral-ministral-3b: [mistral-ministral-8b, google-gemini-flashlite, groq-gptoss-20b]
+    - nvidia-gptoss-20b: [groq-gptoss-20b, google-gemini-flashlite, mistral-ministral-14b]
+    - nvidia-nemotron-lightning: [nvidia-nemotron-120b, groq-gptoss-20b, mistral-ministral-14b]
+
+    # Code tier
+    - ollama-gemma-31b: [groq-qwen-27b, nvidia-glm-53, ollama-gptoss-120b]
+    - zai-glm47-flash: [nvidia-glm53-flash, zai-glm45-flash, groq-qwen-27b]
+    - zai-glm45-flash: [zai-glm47-flash, nvidia-glm53-flash, groq-qwen-27b]
+    - zai-glm46v-flash: [zai-glm47-flash, ollama-gemma-31b, groq-qwen-27b]
+    - nvidia-glm53-flash: [zai-glm47-flash, nvidia-glm-53, groq-qwen-27b]
+    - mistral-codestral: [groq-qwen-27b, zai-glm47-flash, mistral-ministral-14b]
+    - openrouter-glm-flash: [zai-glm47-flash, nvidia-glm53-flash, groq-qwen-27b]
+
+    # Slow Gemma 31B copies: last resort only, prefer the Ollama Cloud copy
+    - google-gemma-31b: [ollama-gemma-31b, groq-gptoss-120b, nvidia-nemotron-120b]
+    - nvidia-gemma-31b: [ollama-gemma-31b, google-gemma-31b, groq-gptoss-120b]
+
+    # OpenRouter free tier (50 req/day): fall back within OpenRouter, then to Groq
+    - openrouter-free: [openrouter-nemotron-120b, openrouter-ling-flash, groq-gptoss-120b]
+    - openrouter-nemotron-550b: [openrouter-nemotron-120b, nvidia-nemotron-550b, groq-gptoss-120b]
+    - openrouter-nemotron-120b: [openrouter-nemotron-550b, nvidia-nemotron-120b, groq-gptoss-120b]
+    - openrouter-nemotron-30b: [openrouter-nemotron-lightning, nvidia-nemotron-lightning, groq-gptoss-20b]
+    - openrouter-nemotron-lightning: [openrouter-nemotron-30b, nvidia-nemotron-lightning, groq-gptoss-20b]
+    - openrouter-ling-flash: [openrouter-nemotron-120b, nvidia-nemotron-120b, groq-gptoss-120b]
+    - openrouter-northcode-mini: [openrouter-laguna-s, zai-glm47-flash, groq-qwen-27b]
+    - openrouter-laguna-s: [openrouter-laguna-xs, openrouter-northcode-mini, groq-qwen-27b]
+    - openrouter-laguna-xs: [openrouter-laguna-s, openrouter-northcode-mini, groq-qwen-27b]
+    - openrouter-apodex-mini: [openrouter-nemotron-120b, nvidia-nemotron-120b, groq-gptoss-120b]
+    - openrouter-dots-note: [openrouter-nemotron-550b, nvidia-nemotron-550b, groq-gptoss-120b]
+
+    # Local model fallbacks live commented out in config.local.yaml (gitignored)
+
+  # Catch-all when a model has no fallback entry
+  default_fallbacks: [groq-gptoss-120b, nvidia-nemotron-120b, google-gemini-flashlite]
+
+litellm_settings:
+  drop_params: true   # strip params a provider does not support (e.g. Anthropic-only fields sent by Claude Code) instead of erroring
+
+general_settings:
+  master_key: sk-local-anything   # clients send this as their API key

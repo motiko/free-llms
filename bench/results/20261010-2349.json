@@ -1,0 +1,761 @@
+{
+ "timestamp": "20261010-2349",
+ "base": "http://localhost:4000",
+ "models": {
+  "google-gemma-31b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 87.09,
+    "out_tokens": 48,
+    "deployment": "gemini/gemma-4-31b-it",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 37.58,
+    "out_tokens": 503,
+    "deployment": "gemini/gemma-4-31b-it",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": false,
+    "latency_s": 6.37,
+    "out_tokens": 13,
+    "deployment": "openai/gemma4:31b",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to openai/gemma4:31b (primary failed)"
+   }
+  },
+  "google-gemma-26b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 1.56,
+    "out_tokens": 19,
+    "deployment": "gemini/gemma-4-26b-a4b-it",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 15.54,
+    "out_tokens": 683,
+    "deployment": "gemini/gemma-4-26b-a4b-it",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 3.84,
+    "out_tokens": 142,
+    "deployment": "gemini/gemma-4-26b-a4b-it",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "google-gemini-flashlite": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.81,
+    "out_tokens": 19,
+    "deployment": "gemini/gemini-3.5-flash-lite",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 0.7,
+    "out_tokens": 107,
+    "deployment": "gemini/gemini-3.5-flash-lite",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 0.51,
+    "out_tokens": 19,
+    "deployment": "gemini/gemini-3.5-flash-lite",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "groq-gptoss-120b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.59,
+    "out_tokens": 45,
+    "deployment": "groq/openai/gpt-oss-120b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 0.7,
+    "out_tokens": 126,
+    "deployment": "groq/openai/gpt-oss-120b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 0.5,
+    "out_tokens": 63,
+    "deployment": "groq/openai/gpt-oss-120b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "groq-gptoss-20b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.48,
+    "out_tokens": 48,
+    "deployment": "groq/openai/gpt-oss-20b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 0.39,
+    "out_tokens": 147,
+    "deployment": "groq/openai/gpt-oss-20b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 0.46,
+    "out_tokens": 71,
+    "deployment": "groq/openai/gpt-oss-20b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "groq-qwen-27b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.2,
+    "out_tokens": 27,
+    "deployment": "groq/qwen/qwen3.8-27b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 0.45,
+    "out_tokens": 108,
+    "deployment": "groq/qwen/qwen3.8-27b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 0.12,
+    "out_tokens": 13,
+    "deployment": "groq/qwen/qwen3.8-27b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "ollama-gptoss-120b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.63,
+    "out_tokens": 68,
+    "deployment": "openai/gpt-oss:120b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 1.06,
+    "out_tokens": 250,
+    "deployment": "openai/gpt-oss:120b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 0.67,
+    "out_tokens": 66,
+    "deployment": "openai/gpt-oss:120b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "ollama-gemma-31b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.56,
+    "out_tokens": 18,
+    "deployment": "openai/gemma4:31b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 0.72,
+    "out_tokens": 108,
+    "deployment": "openai/gemma4:31b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 0.54,
+    "out_tokens": 13,
+    "deployment": "openai/gemma4:31b",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-free": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.74,
+    "out_tokens": 48,
+    "deployment": "openrouter/openrouter/free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 4.52,
+    "out_tokens": 1131,
+    "deployment": "openrouter/openrouter/free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-gemma-31b": {
+   "tool": {
+    "ok": false,
+    "latency_s": 65.03,
+    "out_tokens": 18,
+    "deployment": "openai/gemma4:31b",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to openai/gemma4:31b (primary failed)"
+   },
+   "code": {
+    "ok": false,
+    "latency_s": 55.74,
+    "out_tokens": 541,
+    "deployment": "gemini/gemma-4-31b-it",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to gemini/gemma-4-31b-it (primary failed)"
+   }
+  },
+  "openrouter-gemma-26b": {
+   "tool": {
+    "ok": false,
+    "latency_s": 8.38,
+    "out_tokens": 45,
+    "deployment": "gemini/gemma-4-26b-a4b-it",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to gemini/gemma-4-26b-a4b-it (primary failed)"
+   },
+   "code": {
+    "ok": false,
+    "latency_s": 37.48,
+    "out_tokens": 1408,
+    "deployment": "gemini/gemma-4-26b-a4b-it",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to gemini/gemma-4-26b-a4b-it (primary failed)"
+   }
+  },
+  "openrouter-nemotron-550b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 1.34,
+    "out_tokens": 52,
+    "deployment": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 2.53,
+    "out_tokens": 179,
+    "deployment": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-nemotron-120b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.64,
+    "out_tokens": 53,
+    "deployment": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 4.19,
+    "out_tokens": 140,
+    "deployment": "openrouter/nvidia/nemotron-3-super-120b-a12b:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-nemotron-30b": {
+   "tool": {
+    "ok": false,
+    "latency_s": 6.04,
+    "out_tokens": 44,
+    "deployment": "openrouter/nvidia/nemotron-3.5-lightning:free",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to openrouter/nvidia/nemotron-3.5-lightning:free (primary failed)"
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 4.55,
+    "out_tokens": 132,
+    "deployment": "openrouter/nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-nemotron-lightning": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.37,
+    "out_tokens": 43,
+    "deployment": "openrouter/nvidia/nemotron-3.5-lightning:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 9.51,
+    "out_tokens": 526,
+    "deployment": "openrouter/nvidia/nemotron-3.5-lightning:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-inkling-large": {
+   "tool": {
+    "ok": false,
+    "latency_s": 11.95,
+    "out_tokens": 51,
+    "deployment": "openrouter/nvidia/nemotron-3.5-lightning:free",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to openrouter/nvidia/nemotron-3.5-lightning:free (primary failed)"
+   },
+   "code": {
+    "ok": false,
+    "latency_s": 69.28,
+    "out_tokens": 549,
+    "deployment": "openrouter/nvidia/nemotron-3.5-lightning:free",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to openrouter/nvidia/nemotron-3.5-lightning:free (primary failed)"
+   }
+  },
+  "openrouter-inkling-small": {
+   "tool": {
+    "ok": false,
+    "latency_s": 11.48,
+    "out_tokens": 68,
+    "deployment": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to openrouter/nvidia/nemotron-3-ultra-550b-a55b:free (primary failed)"
+   },
+   "code": {
+    "ok": false,
+    "latency_s": 11.92,
+    "out_tokens": 248,
+    "deployment": "openrouter/nvidia/nemotron-3-ultra-550b-a55b:free",
+    "fallbacks": 1,
+    "http": 200,
+    "error": "fell back to openrouter/nvidia/nemotron-3-ultra-550b-a55b:free (primary failed)"
+   }
+  },
+  "openrouter-ling-flash": {
+   "tool": {
+    "ok": true,
+    "latency_s": 1.42,
+    "out_tokens": 52,
+    "deployment": "openrouter/inclusionai/ling-3.1-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 2.18,
+    "out_tokens": 128,
+    "deployment": "openrouter/inclusionai/ling-3.1-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-northcode-mini": {
+   "tool": {
+    "ok": true,
+    "latency_s": 2.66,
+    "out_tokens": 50,
+    "deployment": "openrouter/cohere/north-mini-code:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 4.15,
+    "out_tokens": 520,
+    "deployment": "openrouter/cohere/north-mini-code:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-laguna-s": {
+   "tool": {
+    "ok": true,
+    "latency_s": 1.34,
+    "out_tokens": 34,
+    "deployment": "openrouter/poolside/laguna-s-2.1:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 3.45,
+    "out_tokens": 108,
+    "deployment": "openrouter/poolside/laguna-s-2.1:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-laguna-xs": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.47,
+    "out_tokens": 35,
+    "deployment": "openrouter/poolside/laguna-xs-2.1:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 5.57,
+    "out_tokens": 764,
+    "deployment": "openrouter/poolside/laguna-xs-2.1:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-apodex-mini": {
+   "tool": {
+    "ok": true,
+    "latency_s": 1.02,
+    "out_tokens": 71,
+    "deployment": "openrouter/apodex/apodex-1.1-mini:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 7.98,
+    "out_tokens": 1286,
+    "deployment": "openrouter/apodex/apodex-1.1-mini:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-dots-note": {
+   "tool": {
+    "ok": true,
+    "latency_s": 1.48,
+    "out_tokens": 72,
+    "deployment": "openrouter/dots-studio/dots-3-note-preview:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 6.46,
+    "out_tokens": 565,
+    "deployment": "openrouter/dots-studio/dots-3-note-preview:free",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "openrouter-glm-flash": {
+   "tool": {
+    "ok": true,
+    "latency_s": 2.48,
+    "out_tokens": 14,
+    "deployment": "openrouter/z-ai/glm-5.3-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 1.91,
+    "out_tokens": 264,
+    "deployment": "openrouter/z-ai/glm-5.3-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "zai-glm47-flash": {
+   "tool": {
+    "ok": true,
+    "latency_s": 2.99,
+    "out_tokens": 120,
+    "deployment": "zai/glm-4.7-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 10.66,
+    "out_tokens": 746,
+    "deployment": "zai/glm-4.7-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 20.17,
+    "out_tokens": 206,
+    "deployment": "zai/glm-4.7-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "zai-glm45-flash": {
+   "tool": {
+    "ok": true,
+    "latency_s": 3.43,
+    "out_tokens": 93,
+    "deployment": "zai/glm-4.5-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 6.6,
+    "out_tokens": 210,
+    "deployment": "zai/glm-4.5-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 2.38,
+    "out_tokens": 90,
+    "deployment": "zai/glm-4.5-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "zai-glm46v-flash": {
+   "tool": {
+    "ok": true,
+    "latency_s": 4.91,
+    "out_tokens": 88,
+    "deployment": "zai/glm-4.6v-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 13.46,
+    "out_tokens": 497,
+    "deployment": "zai/glm-4.6v-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 10.71,
+    "out_tokens": 90,
+    "deployment": "zai/glm-4.6v-flash",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "mistral-codestral": {
+   "tool": {
+    "ok": false,
+    "latency_s": 1.27,
+    "out_tokens": 131,
+    "deployment": "mistral/codestral-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": null
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 0.88,
+    "out_tokens": 103,
+    "deployment": "mistral/codestral-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 0.32,
+    "out_tokens": 21,
+    "deployment": "mistral/codestral-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "mistral-ministral-14b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.42,
+    "out_tokens": 14,
+    "deployment": "mistral/ministral-14b-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 1.27,
+    "out_tokens": 96,
+    "deployment": "mistral/ministral-14b-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 0.86,
+    "out_tokens": 21,
+    "deployment": "mistral/ministral-14b-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "mistral-ministral-8b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.34,
+    "out_tokens": 14,
+    "deployment": "mistral/ministral-8b-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 1.61,
+    "out_tokens": 96,
+    "deployment": "mistral/ministral-8b-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 0.39,
+    "out_tokens": 21,
+    "deployment": "mistral/ministral-8b-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  },
+  "mistral-ministral-3b": {
+   "tool": {
+    "ok": true,
+    "latency_s": 0.28,
+    "out_tokens": 14,
+    "deployment": "mistral/ministral-3b-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "code": {
+    "ok": true,
+    "latency_s": 0.46,
+    "out_tokens": 60,
+    "deployment": "mistral/ministral-3b-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   },
+   "json": {
+    "ok": true,
+    "latency_s": 0.26,
+    "out_tokens": 21,
+    "deployment": "mistral/ministral-3b-latest",
+    "fallbacks": 0,
+    "http": 200,
+    "error": ""
+   }
+  }
+ }
+}
