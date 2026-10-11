@@ -9,6 +9,11 @@ A LiteLLM proxy configuration, not an application codebase. The only files that 
 `config.local.yaml` (gitignored) holds the disabled local-model entries.
 `config.yaml.bak-*` files are manual backups taken before edits; keep making one before rewriting the config.
 `bench/bench.py` benchmarks every model through the proxy (see the `bench` skill); results live in `bench/results/`.
+`request_log.py` is a LiteLLM callback (registered in `litellm_settings.callbacks`) that appends one JSON line per
+request to `~/llm/logs/requests.jsonl`: alias asked for, deployment/provider that served it, tokens, cost, latency,
+fallback count, errors. Fallback chains share one `call_id`; a restart is needed after editing the callback.
+`./reqlog` queries that log (`reqlog -h`): `models`, `aliases`, `fallbacks`, `latency`, `errors`, `rate`, `cost`, `quota` (live
+provider quota probe), with `--since 24h`, `--alias`, `--model`, `--provider` filters. Known daily caps live in its `DAILY_CAPS`.
 `claude-free` launches Claude Code against the proxy at `http://$LITELLM_HOST:4000` (`LITELLM_HOST` from the env or `.env`,
 default localhost; main model `smart`, Haiku slot `fast`; override with `CLAUDE_FREE_MODEL=code`).
 

@@ -1,0 +1,336 @@
+#!/usr/bin/env python3
+"""reqlog - query the LiteLLM request log (~/llm/logs/requests.jsonl written by request_log.py).
+
+usage: reqlog [-f FILE] [--since 24h|7d|YYYY-MM-DD] [--alias NAME] [--model SUBSTR] [--provider NAME] COMMAND
+
+commands
+  tail [-n N]     last N requests, one line each (default 20)
+  failures        failed requests with error code and message
+  errors          error codes per provider and deployment (429 = rate limited)
+  providers       requests, failures, tokens and cost per provider
+  models          per deployment: requests, success %, p50/p95 latency, out tok/s, fallbacks, cost
+  aliases         for each alias (smart/fast/...): which deployments actually served it
+  fallbacks       fallback chains: alias -> failed deployments -> final deployment
+  latency         latency percentiles per deployment, split by output size
+  rate            requests per provider per hour (last 24h) and per day, against known daily caps
+  cost            cost per day per provider
+  slow [-n N]     slowest N requests
+  quota           live probe of remaining provider quota (OpenRouter credits, Groq/Google/Mistral headers)
+
+examples
+  reqlog --since 24h models
+  reqlog --alias smart aliases
+  reqlog --provider groq errors
+  reqlog --since 7d --model gptoss latency
+"""
+import argparse, collections, datetime as dt, json, os, re, statistics, sys, urllib.request
+
+LOG = os.environ.get("LITELLM_REQUEST_LOG", os.path.expanduser("~/llm/logs/requests.jsonl"))
+ENV = os.path.expanduser("~/litellm/.env")
+# known free-tier daily request caps, for the `rate` view (edit as plans change)
+DAILY_CAPS = {"gemini": 1000, "openrouter": 50, "groq": 14400, "mistral": None, "nvidia_nim": None, "zai": None, "openai": None}
+
+
+def parse_since(s):
+    if not s:
+        return None
+    m = re.fullmatch(r"(\d+)([hdm])", s)
+    if m:
+        n, u = int(m[1]), m[2]
+        delta = {"h": dt.timedelta(hours=n), "d": dt.timedelta(days=n), "m": dt.timedelta(minutes=n)}[u]
+        return dt.datetime.now(dt.timezone.utc) - delta
+    return dt.datetime.fromisoformat(s).replace(tzinfo=dt.timezone.utc)
+
+
+def load(a):
+    since = parse_since(a.since)
+    rows = []
+    try:
+        f = open(a.file, encoding="utf-8")
+    except FileNotFoundError:
+        sys.exit(f"no log at {a.file}")
+    with f:
+        for line in f:
+            try:
+                r = json.loads(line)
+            except ValueError:
+                continue
+            r["_t"] = dt.datetime.fromisoformat(r["ts"])
+            if since and r["_t"] < since:
+                continue
+            if a.alias and r.get("model_group") != a.alias:
+                continue
+            if a.model and a.model not in (r.get("model") or "") and a.model not in (r.get("model_group") or ""):
+                continue
+            if a.provider and r.get("provider") != a.provider:
+                continue
+            rows.append(r)
+    return rows
+
+
+def pct(xs, p):
+    if not xs:
+        return 0.0
+    xs = sorted(xs)
+    k = (len(xs) - 1) * p
+    lo, hi = int(k), min(int(k) + 1, len(xs) - 1)
+    return xs[lo] + (xs[hi] - xs[lo]) * (k - lo)
+
+
+def table(headers, rows, fmt=None):
+    rows = [[("" if v is None else v) for v in r] for r in rows]
+    cells = [[str(h) for h in headers]] + [[(fmt[i](v) if fmt and fmt[i] and v != "" else str(v)) for i, v in enumerate(r)] for r in rows]
+    w = [max(len(r[i]) for r in cells) for i in range(len(headers))]
+    num = [all(isinstance(r[i], (int, float)) for r in rows) if rows else False for i in range(len(headers))]
+    for j, r in enumerate(cells):
+        print("  ".join((c.rjust(w[i]) if num[i] else c.ljust(w[i])) for i, c in enumerate(r)))
+        if j == 0:
+            print("  ".join("-" * x for x in w))
+
+
+def short(m, n=38):
+    m = " ".join(str(m).split())
+    return m if len(m) <= n else m[: n - 1] + "…"
+
+
+def usd(v):
+    return "-" if not v else (f"${v:.6f}" if v < 0.01 else f"${v:.4f}")
+
+
+def local(t):
+    return t.astimezone().strftime("%m-%d %H:%M:%S")
+
+
+# ---------------------------------------------------------------- commands
+def cmd_tail(a, rows):
+    for r in rows[-a.n:]:
+        flag = "OK " if r["status"] == "success" else "ERR"
+        fb = f" fb={r['fallbacks']}" if r.get("fallbacks") else ""
+        err = f"  {r.get('error_code','')} {short(r.get('error',''), 70)}" if r["status"] != "success" else ""
+        print(f"{local(r['_t'])} {flag} {r.get('model_group',''):<24} -> {short(r.get('model',''),40):<40} "
+              f"{r.get('latency_s',0):6.2f}s {r.get('completion_tokens') or 0:5d}tok {usd(r.get('cost_usd')):>9}{fb}{err}")
+
+
+def cmd_failures(a, rows):
+    out = [[local(r["_t"]), r.get("model_group"), short(r.get("model", "")), r.get("error_code"), r.get("error_class"), short(r.get("error", ""), 90)]
+           for r in rows if r["status"] != "success"]
+    table(["time", "alias", "deployment", "code", "class", "error"], out)
+
+
+def cmd_errors(a, rows):
+    c = collections.Counter((r.get("provider"), short(r.get("model", "")), r.get("error_code") or r.get("error_class")) for r in rows if r["status"] != "success")
+    table(["provider", "deployment", "code", "count"], [[*k, v] for k, v in sorted(c.items(), key=lambda kv: -kv[1])])
+
+
+def cmd_providers(a, rows):
+    g = collections.defaultdict(list)
+    for r in rows:
+        g[r.get("provider")].append(r)
+    out = []
+    for p, rs in sorted(g.items(), key=lambda kv: -len(kv[1])):
+        ok = [r for r in rs if r["status"] == "success"]
+        out.append([p, len(rs), len(rs) - len(ok), sum(r.get("prompt_tokens") or 0 for r in ok), sum(r.get("completion_tokens") or 0 for r in ok),
+                    sum(r.get("cost_usd") or 0 for r in ok), pct([r["latency_s"] for r in ok], .5)])
+    table(["provider", "req", "fail", "in tok", "out tok", "cost", "p50 s"], out, [None] * 5 + [usd, lambda v: f"{v:.2f}"])
+
+
+def cmd_models(a, rows):
+    g = collections.defaultdict(list)
+    for r in rows:
+        g[r.get("model")].append(r)
+    out = []
+    for m, rs in sorted(g.items(), key=lambda kv: -len(kv[1])):
+        ok = [r for r in rs if r["status"] == "success"]
+        lat = [r["latency_s"] for r in ok]
+        tps = [r["completion_tokens"] / r["latency_s"] for r in ok if r.get("completion_tokens") and r["latency_s"] > 0]
+        out.append([short(m, 44), rs[0].get("provider"), len(rs), 100 * len(ok) / len(rs), pct(lat, .5), pct(lat, .95),
+                    statistics.median(tps) if tps else 0, sum(1 for r in rs if r.get("fallbacks")), sum(r.get("cost_usd") or 0 for r in ok)])
+    table(["deployment", "provider", "req", "ok %", "p50 s", "p95 s", "tok/s", "fb", "cost"], out,
+          [None, None, None, lambda v: f"{v:.0f}", lambda v: f"{v:.2f}", lambda v: f"{v:.2f}", lambda v: f"{v:.0f}", None, usd])
+
+
+def cmd_aliases(a, rows):
+    g = collections.defaultdict(collections.Counter)
+    tot = collections.Counter()
+    for r in rows:
+        if r["status"] == "success":
+            g[r.get("model_group")][r.get("model")] += 1
+            tot[r.get("model_group")] += 1
+    out = []
+    for al, c in sorted(g.items(), key=lambda kv: -tot[kv[0]]):
+        for m, n in c.most_common():
+            out.append([al, short(m, 44), n, 100 * n / tot[al]])
+    table(["alias", "served by", "req", "share %"], out, [None, None, None, lambda v: f"{v:.0f}"])
+
+
+def cmd_fallbacks(a, rows):
+    chains = collections.defaultdict(list)
+    for r in rows:
+        chains[r.get("call_id")].append(r)
+    paths = collections.Counter()
+    for cid, rs in chains.items():
+        if len(rs) < 2 and not any(r.get("fallbacks") for r in rs):
+            continue
+        rs.sort(key=lambda r: r["_t"])
+        path = " -> ".join(short(r.get("model", ""), 30) + ("" if r["status"] == "success" else f" ✗{r.get('error_code') or ''}") for r in rs)
+        final = rs[-1]
+        paths[(rs[0].get("model_group"), path, "ok" if final["status"] == "success" else "FAILED", final.get("fallbacks"))] += 1
+    table(["alias", "path", "end", "hops", "count"], [[*k, v] for k, v in paths.most_common()])
+    if not paths:
+        print("no fallbacks in range")
+
+
+def cmd_latency(a, rows):
+    g = collections.defaultdict(lambda: {"short": [], "long": []})
+    for r in rows:
+        if r["status"] != "success":
+            continue
+        g[r.get("model")]["long" if (r.get("completion_tokens") or 0) > 200 else "short"].append(r["latency_s"])
+    out = []
+    for m, d in sorted(g.items(), key=lambda kv: -(len(kv[1]["short"]) + len(kv[1]["long"]))):
+        s, l = d["short"], d["long"]
+        out.append([short(m, 44), len(s), pct(s, .5), pct(s, .95), len(l), pct(l, .5), pct(l, .95), max(s + l) if s + l else 0])
+    f2 = lambda v: f"{v:.2f}"
+    table(["deployment", "≤200tok n", "p50", "p95", ">200tok n", "p50", "p95", "max"], out, [None, None, f2, f2, None, f2, f2, f2])
+
+
+def cmd_rate(a, rows):
+    now = dt.datetime.now(dt.timezone.utc)
+    day = collections.defaultdict(collections.Counter)
+    hour = collections.Counter()
+    for r in rows:
+        day[r["_t"].astimezone().date()][r.get("provider")] += 1
+        if now - r["_t"] < dt.timedelta(hours=1):
+            hour[r.get("provider")] += 1
+    provs = sorted({p for c in day.values() for p in c})
+    print("requests per day (local date); daily cap in header where known")
+    hdr = ["date"] + [f"{p}{' /'+str(DAILY_CAPS[p]) if DAILY_CAPS.get(p) else ''}" for p in provs]
+    table(hdr, [[str(d)] + [day[d][p] for p in provs] for d in sorted(day)])
+    print("\nlast 60 min:", ", ".join(f"{p}={n}" for p, n in hour.most_common()) or "none")
+
+
+def cmd_cost(a, rows):
+    day = collections.defaultdict(collections.Counter)
+    for r in rows:
+        day[r["_t"].astimezone().date()][r.get("provider")] += r.get("cost_usd") or 0
+    provs = sorted({p for c in day.values() for p in c})
+    table(["date"] + provs + ["total"], [[str(d)] + [day[d][p] for p in provs] + [sum(day[d].values())] for d in sorted(day)], [None] + [usd] * (len(provs) + 1))
+
+
+def cmd_slow(a, rows):
+    ok = sorted((r for r in rows if r["status"] == "success"), key=lambda r: -r["latency_s"])[: a.n]
+    table(["time", "alias", "deployment", "s", "out tok", "tok/s"],
+          [[local(r["_t"]), r.get("model_group"), short(r.get("model", "")), r["latency_s"], r.get("completion_tokens"),
+            (r.get("completion_tokens") or 0) / r["latency_s"] if r["latency_s"] else 0] for r in ok],
+          [None, None, None, lambda v: f"{v:.2f}", None, lambda v: f"{v:.0f}"])
+
+
+def cmd_quota(a, rows):
+    env = {}
+    if os.path.exists(ENV):
+        for line in open(ENV):
+            line = line.strip()
+            if "=" in line and not line.startswith("#"):
+                k, v = line.split("=", 1)
+                env[k.strip()] = v.strip().strip('"').strip("'")
+    env = {**env, **os.environ}
+
+    def call(url, key, body=None, extra=None):
+        hdr = {"Content-Type": "application/json", "User-Agent": "curl/8.7.1", **(extra or {"Authorization": f"Bearer {key}"})}
+        req = urllib.request.Request(url, data=json.dumps(body).encode() if body else None, headers=hdr)
+        try:
+            with urllib.request.urlopen(req, timeout=30) as resp:
+                return resp.status, dict(resp.headers), resp.read()
+        except urllib.error.HTTPError as e:
+            return e.code, dict(e.headers), e.read()
+        except Exception as e:
+            return None, {}, str(e).encode()
+
+    ping = {"max_tokens": 1, "messages": [{"role": "user", "content": "hi"}]}
+    if env.get("OPENROUTER_API_KEY"):
+        st, _, body = call("https://openrouter.ai/api/v1/key", env["OPENROUTER_API_KEY"])
+        d = json.loads(body).get("data", {}) if st == 200 else {}
+        fr = d.get("free_model_daily_requests", {})
+        print(f"openrouter   credits ${d.get('limit_remaining', '?')} of ${d.get('limit', '?')} left, used today ${d.get('usage_daily', '?')};"
+              f" free-model requests today {fr.get('used', '?')}/{fr.get('limit', '?')}" if st == 200 else f"openrouter   HTTP {st}")
+    probes = [
+        ("groq", "https://api.groq.com/openai/v1/chat/completions", "GROQ_API_KEY", {**ping, "model": "openai/gpt-oss-20b"}, None),
+        ("gemini", "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent", "GEMINI_API_KEY",
+         {"contents": [{"parts": [{"text": "hi"}]}], "generationConfig": {"maxOutputTokens": 1}}, "x-goog-api-key"),
+        ("mistral", "https://api.mistral.ai/v1/chat/completions", "MISTRAL_API_KEY", {**ping, "model": "ministral-3b-latest"}, None),
+    ]
+    for name, url, kv, body, keyhdr in probes:
+        if not env.get(kv):
+            continue
+        st, h, _ = call(url, env[kv], body, {keyhdr: env[kv]} if keyhdr else None)
+        h = {k.lower(): v for k, v in h.items()}
+        rl = {k: v for k, v in h.items() if "ratelimit" in k and ("remaining" in k or "limit" in k or "reset" in k)}
+        print(f"{name:<12} HTTP {st}  " + (", ".join(f"{k.replace('x-ratelimit-','')}={v}" for k, v in sorted(rl.items())) or "no rate-limit headers"))
+    print("nvidia_nim / zai / ollama: no quota API; check their dashboards. Local request counts: reqlog rate")
+
+
+TLDR = """
+reqlog
+Query the LiteLLM request log (~/llm/logs/requests.jsonl) for routing, latency, errors, cost and quota.
+Filters work with every command: --since 24h|7d|30m|YYYY-MM-DD, --alias NAME, --model SUBSTR, --provider NAME.
+More information: reqlog -h
+
+- Show the last 20 requests (alias -> deployment, latency, tokens, cost):
+    reqlog tail
+
+- Per-deployment success rate, p50/p95 latency, tokens per second and cost since yesterday:
+    reqlog --since 24h models
+
+- Which deployments actually served an alias:
+    reqlog --alias smart aliases
+
+- Fallback chains with the error that triggered each hop:
+    reqlog fallbacks
+
+- Error codes per provider (429 = rate limited):
+    reqlog --provider groq errors
+
+- Failed requests with the full error message:
+    reqlog --since 7d failures
+
+- Latency percentiles per deployment, short vs long replies:
+    reqlog --model gptoss latency
+
+- Requests per provider per day against known daily caps:
+    reqlog rate
+
+- Cost per day per provider:
+    reqlog --since 30d cost
+
+- Slowest requests:
+    reqlog slow -n 10
+
+- Live remaining quota (OpenRouter credits, Groq and Mistral per-minute limits):
+    reqlog quota
+"""
+
+
+def main():
+    ap = argparse.ArgumentParser(prog="reqlog", description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    ap.add_argument("-f", "--file", default=LOG)
+    ap.add_argument("--since", help="24h, 7d, 30m or YYYY-MM-DD")
+    ap.add_argument("--alias", help="exact alias / model_name the client sent")
+    ap.add_argument("--model", help="substring of the deployment or alias")
+    ap.add_argument("--provider", help="exact provider: groq, gemini, mistral, openrouter, nvidia_nim, zai, openai (ollama)")
+    sub = ap.add_subparsers(dest="cmd")
+    for name in ["failures", "errors", "providers", "models", "aliases", "fallbacks", "latency", "rate", "cost", "quota"]:
+        sub.add_parser(name)
+    sub.add_parser("tail").add_argument("-n", type=int, default=20)
+    sub.add_parser("slow").add_argument("-n", type=int, default=15)
+    a = ap.parse_args()
+    if a.cmd is None:
+        print(TLDR.rstrip())
+        return
+    rows = [] if a.cmd == "quota" else load(a)
+    if a.cmd != "quota" and not rows:
+        sys.exit("no matching requests")
+    globals()[f"cmd_{a.cmd}"](a, rows)
+
+
+if __name__ == "__main__":
+    main()

@@ -52,8 +52,6 @@ model_list:
 # account has bought $10 of credits). Model availability on the free tier changes often; check
 # https://openrouter.ai/models?q=free before relying on one.
 # No GLM model is on the free tier (checked 2026-10-10); openrouter-glm-flash is the cheapest GLM and is PAID.
-# Left out on purpose: gemma-4-*:free (shared Google AI Studio pool, rate-limited upstream; use google-* instead) and
-# thinkingmachines/inkling*:free (403, only served to approved agentic apps).
 
   - model_name: openrouter-free                   # auto-router: picks a random free model
     litellm_params:
@@ -206,8 +204,6 @@ model_list:
     model_info:
       mode: embedding
 
-# Local models (local-*, agent-remote) live commented out in config.local.yaml (gitignored).
-
 router_settings:
   enable_tag_filtering: true          # only used by the (disabled) agent-remote entries
   num_retries: 2                      # retries on the same deployment before falling back
@@ -286,6 +282,7 @@ router_settings:
   default_fallbacks: [groq-gptoss-120b, nvidia-nemotron-120b, google-gemini-flashlite]
 
 litellm_settings:
+  callbacks: request_log.request_logger   # request_log.py next to this file: one JSON line per request -> ~/llm/logs/requests.jsonl
   drop_params: true   # strip params a provider does not support (e.g. Anthropic-only fields sent by Claude Code) instead of erroring
 
 general_settings:
