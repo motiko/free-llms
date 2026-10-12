@@ -4,9 +4,11 @@
 #   LITELLM_HOST  host running the proxy (default: localhost); also read from .env next to this script
 #   LITELLM_PORT  proxy port (default: 4000)
 #   CLAUDE_FREE_MODEL  main model (default: smart); any model name the proxy lists, e.g. code
-here="$(cd "$(dirname "$0")" && pwd)"
-if [ -z "$LITELLM_HOST" ] && [ -f "$here/.env" ]; then
-  LITELLM_HOST="$(grep -E '^LITELLM_HOST=' "$here/.env" | tail -n1 | cut -d= -f2-)"
+here="$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)"
+if [ -f "$here/.env" ]; then
+  # Read connection settings without exporting provider credentials to Claude.
+  LITELLM_HOST="${LITELLM_HOST:-$(. "$here/.env"; printf '%s' "${LITELLM_HOST:-localhost}")}"
+  LITELLM_PORT="${LITELLM_PORT:-$(. "$here/.env"; printf '%s' "${LITELLM_PORT:-4000}")}"
 fi
 export ANTHROPIC_BASE_URL="${ANTHROPIC_BASE_URL:-http://${LITELLM_HOST:-localhost}:${LITELLM_PORT:-4000}}"
 export ANTHROPIC_AUTH_TOKEN="${ANTHROPIC_AUTH_TOKEN:-sk-local-anything}"

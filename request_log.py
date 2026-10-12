@@ -1,18 +1,18 @@
-"""LiteLLM custom callback: append one JSON line per request to ~/llm/logs/requests.jsonl.
+"""LiteLLM custom callback: append one JSON line per request to logs/requests.jsonl.
 
 Records which alias was asked for, which deployment/provider served it, tokens, cost,
 latency, fallback/retry counts, error details and the provider's remaining rate-limit
 headers when it sends any. Wired in via litellm_settings.callbacks in config.yaml.
 
 Query examples:
-  jq -c 'select(.status=="failure") | {ts,model_group,model,error_code,error}' ~/llm/logs/requests.jsonl
-  jq -r '[.provider,.model_group] | @tsv' ~/llm/logs/requests.jsonl | sort | uniq -c
+  jq -c 'select(.status=="failure") | {ts,model_group,model,error_code,error}' logs/requests.jsonl
+  jq -r '[.provider,.model_group] | @tsv' logs/requests.jsonl | sort | uniq -c
 """
 import datetime, json, os, threading
 
 from litellm.integrations.custom_logger import CustomLogger
 
-LOG_PATH = os.environ.get("LITELLM_REQUEST_LOG", os.path.expanduser("~/llm/logs/requests.jsonl"))
+LOG_PATH = os.environ.get("LITELLM_REQUEST_LOG", os.path.join(os.path.dirname(os.path.abspath(__file__)), "logs", "requests.jsonl"))
 _lock = threading.Lock()
 
 

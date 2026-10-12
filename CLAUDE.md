@@ -10,7 +10,7 @@ A LiteLLM proxy configuration, not an application codebase. The only files that 
 `config.yaml.bak-*` files are manual backups taken before edits; keep making one before rewriting the config.
 `bench/bench.py` benchmarks every model through the proxy (see the `bench` skill); results live in `bench/results/`.
 `request_log.py` is a LiteLLM callback (registered in `litellm_settings.callbacks`) that appends one JSON line per
-request to `~/llm/logs/requests.jsonl`: alias asked for, deployment/provider that served it, tokens, cost, latency,
+request to `logs/requests.jsonl`: alias asked for, deployment/provider that served it, tokens, cost, latency,
 fallback count, errors. Fallback chains share one `call_id`; a restart is needed after editing the callback.
 `./reqlog` queries that log (`reqlog -h`): `models`, `aliases`, `fallbacks`, `latency`, `errors`, `rate`, `cost`, `quota` (live
 provider quota probe), with `--since 24h`, `--alias`, `--model`, `--provider` filters. Known daily caps live in its `DAILY_CAPS`.
@@ -19,22 +19,27 @@ default localhost; main model `smart`, Haiku slot `fast`; override with `CLAUDE_
 
 ## How the proxy runs
 
-- It is a **launchd daemon** with `KeepAlive`: `/Library/LaunchDaemons/com.local.litellm.plist` runs `run.sh`,
-  which sources `.env` and execs `~/.local/bin/litellm --config ~/litellm/config.yaml --host 0.0.0.0 --port 4000`.
-- **Restart = kill the process.** launchd relaunches it within ~1s with the current config:
-  `pkill -f "bin/litellm"`. Do not start a second instance manually; it will fight over port 4000.
-- Logs (stdout+stderr): `~/llm/logs/litellm.log`.
-- Clients authenticate with the `master_key` from `general_settings` (`sk-local-anything`).
-- LiteLLM is installed as a `uv` tool. Its interpreter (which has `pyyaml` and `litellm`; system python does not)
-  is `~/.local/share/uv/tools/litellm/bin/python`.
+- Run `./setup.sh` from any checkout to sync locked dependencies into `.venv` and create `.env`
+  if missing. uv and managed Python downloads/cache stay in `.tools`; existing credentials are preserved.
+- `run.sh` resolves its own directory, sources that checkout's `.env`, and starts `.venv/bin/litellm`
+  with the adjacent `config.yaml`. It defaults to `127.0.0.1:4000`; configure `LITELLM_BIND_HOST` and
+  `LITELLM_PORT` in `.env` for another listener.
+- Use `./service.sh start` for the macOS user LaunchAgent with startup at login; `stop` also disables
+  login startup, and `restart` reloads configuration. Inspect `status` and `logs`; `uninstall` preserves
+  credentials and logs. Do not start a second instance on the same port. A legacy system daemon must
+  be stopped separately before switching. See README.md.
+- Request logs: `logs/requests.jsonl` in the checkout, overridable with `LITELLM_REQUEST_LOG`.
+  Daemon stdout/stderr: `logs/litellm.log`.
+- Clients authenticate with the `master_key` in `general_settings` (default `sk-local-anything`).
+- Run Python utilities with `.venv/bin/python`; no globally installed LiteLLM tool is required.
 
 ## Validating and testing config changes
 
 Offline check (parses YAML and builds the Router without network calls):
 
 ```sh
-cd ~/litellm; set -a; source .env; set +a
-~/.local/share/uv/tools/litellm/bin/python - <<'PY'
+set -a; source .env; set +a
+.venv/bin/python - <<'PY'
 import yaml; from litellm import Router
 cfg = yaml.safe_load(open('config.yaml'))
 r = Router(model_list=cfg['model_list'], **cfg['router_settings'])
@@ -66,6 +71,9 @@ curl -s http://localhost:4000/v1/chat/completions -H "Authorization: Bearer sk-l
   NVIDIA NIM (`nvidia-*`, `NVIDIA_API_KEY`; ~40 req/min, has the full GLM 5.3 and the embedding model `nvidia-nemotron-embed`).
 - **Role aliases** (`router_settings.model_group_alias`): `smart`, `fast`, `code`, `cheap`, `embed`.
   Clients should prefer aliases over provider names.
+  The 2026-10-12 benchmark excludes exhausted Ollama deployments from automatic fallback targets;
+  revalidate after monthly quota renewal before restoring them. The agentic code chain uses
+  Ministral 14B instead of Codestral because Codestral repeatedly missed the tool-call probe.
 - **Fallbacks** are defined for every model *and* every alias, because LiteLLM looks up fallbacks by the
   name the client sent, not the alias target. When adding a model, add it to both lists.
 - **Local models** (`local-*`, `agent-remote`) live commented out in `config.local.yaml` (gitignored, not in the

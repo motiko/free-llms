@@ -5,21 +5,21 @@
   <key>Label</key><string>com.local.litellm</string>
   <key>ProgramArguments</key>
   <array>
-    <string>/Users/YOUR_USER/litellm/run.sh</string>
+    <string>REPO_PATH/run.sh</string>
   </array>
   <key>EnvironmentVariables</key>
   <dict>
-    <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:/Users/YOUR_USER/.local/bin</string>
-    <key>HOME</key><string>/Users/YOUR_USER</string>
+    <key>PATH</key><string>/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin:USER_HOME/.local/bin</string>
+    <key>HOME</key><string>USER_HOME</string>
   </dict>
-  <key>WorkingDirectory</key><string>/Users/YOUR_USER</string>
+  <key>WorkingDirectory</key><string>REPO_PATH</string>
   <key>UserName</key><string>YOUR_USER</string>
   <key>GroupName</key><string>staff</string>
   <key>SessionCreate</key><true/>
   <key>RunAtLoad</key><true/>
   <key>KeepAlive</key><true/>
   <key>ThrottleInterval</key><integer>10</integer>
-  <key>StandardOutPath</key><string>/Users/YOUR_USER/llm/logs/litellm.log</string>
-  <key>StandardErrorPath</key><string>/Users/YOUR_USER/llm/logs/litellm.log</string>
+  <key>StandardOutPath</key><string>REPO_PATH/logs/litellm.log</string>
+  <key>StandardErrorPath</key><string>REPO_PATH/logs/litellm.log</string>
 </dict>
 </plist>

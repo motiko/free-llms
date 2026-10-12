@@ -1,0 +1,9 @@
+[project]
+name = "free-llms"
+version = "0.1.0"
+description = "Local LiteLLM proxy configuration and diagnostics"
+requires-python = ">=3.12,<3.13"
+dependencies = ["litellm[proxy]", "httpx", "pyyaml"]
+
+[tool.uv]
+package = false

@@ -5,18 +5,18 @@ description: Benchmark every model behind the local LiteLLM proxy (tool call, co
 
 # Proxy model benchmark
 
-Script: `bench/bench.py` (run with the LiteLLM tool interpreter, it needs `httpx` and `pyyaml`).
+Script: `bench/bench.py` (run with the checkout’s `.venv/bin/python`, it needs `httpx` and `pyyaml`).
 Results: `bench/results/<YYYYMMDD-HHMM>.json` (raw) and `.md` (table). Keep them; they are the history.
 
 ## Run
 
 ```sh
-~/.local/share/uv/tools/litellm/bin/python ~/litellm/bench/bench.py            # everything in config.yaml
-~/.local/share/uv/tools/litellm/bin/python ~/litellm/bench/bench.py --only mistral-,zai-   # a subset
-~/.local/share/uv/tools/litellm/bin/python ~/litellm/bench/bench.py --skip openrouter-     # spare OpenRouter quota
+.venv/bin/python bench/bench.py            # everything in config.yaml
+.venv/bin/python bench/bench.py --only mistral-,zai-   # a subset
+.venv/bin/python bench/bench.py --skip openrouter-     # spare OpenRouter quota
 ```
 
-The proxy must be running (it is a launchd daemon on port 4000; restart = `pkill -f "bin/litellm"`).
+Run commands from the repository root after `./setup.sh`. The proxy must be running (`./run.sh` or `./service.sh start` on macOS).
 A full run is ~90 requests and takes 5-15 minutes; run it in the background and read the `.md` afterwards.
 
 ## What it measures

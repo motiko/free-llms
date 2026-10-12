@@ -219,26 +219,26 @@ router_settings:
     embed: nvidia-nemotron-embed      # nemotron-3-embed-1b, 2048 dims
 
   # Chains ordered by the benchmark in bench/results/ (tool call + code + json, latency through the proxy).
-  # Groq is fastest (<1s), Ollama Cloud and NVIDIA Nemotron 120B next (~1s), Z.ai GLM Flash and NVIDIA GLM 5.3
-  # are solid but slower (4-10s, reasoning tokens). Gemma 4 31B on Google and NVIDIA is 30-130s per call, so it
-  # sits at the end of every chain; the Ollama Cloud copy of it is fast. Codestral sometimes answers tool calls in
-  # prose, so it stays behind the others in the code chain.
+  # Groq and NVIDIA Nemotron 120B passed all probes at ~1s or less (2026-10-12).
+  # Ollama monthly quota is exhausted: keep deployments for direct requests, but omit them as fallback targets.
+  # Codestral answered the tool probe in prose again; use Ministral 14B in the agentic code chain.
+  # Google/NVIDIA Gemma 31B are slow; prefer healthy fast deployments before those copies.
   fallbacks:
     # Role aliases
-    - smart: [ollama-gptoss-120b, nvidia-nemotron-120b, nvidia-glm-53, nvidia-nemotron-550b, groq-qwen-27b, openrouter-nemotron-550b]
+    - smart: [nvidia-nemotron-120b, nvidia-glm-53, nvidia-nemotron-550b, groq-qwen-27b, openrouter-nemotron-550b]
     - fast: [google-gemini-flashlite, mistral-ministral-14b, nvidia-nemotron-120b, nvidia-gptoss-20b, google-gemma-26b]
-    - code: [ollama-gemma-31b, nvidia-glm-53, zai-glm47-flash, mistral-codestral, groq-gptoss-120b, openrouter-northcode-mini]
+    - code: [nvidia-glm-53, zai-glm47-flash, groq-gptoss-120b, mistral-ministral-14b, openrouter-northcode-mini]
     - cheap: [mistral-ministral-8b, groq-gptoss-20b, mistral-ministral-3b, google-gemma-26b, openrouter-free]
 
     # Same chains keyed by the deployment names behind the aliases (LiteLLM looks fallbacks up by the requested name)
-    - groq-gptoss-120b: [ollama-gptoss-120b, nvidia-nemotron-120b, nvidia-glm-53, nvidia-nemotron-550b, groq-qwen-27b, openrouter-nemotron-550b]
+    - groq-gptoss-120b: [nvidia-nemotron-120b, nvidia-glm-53, nvidia-nemotron-550b, groq-qwen-27b, openrouter-nemotron-550b]
     - groq-gptoss-20b: [google-gemini-flashlite, mistral-ministral-14b, nvidia-nemotron-120b, nvidia-gptoss-20b, google-gemma-26b]
-    - groq-qwen-27b: [ollama-gemma-31b, nvidia-glm-53, zai-glm47-flash, mistral-codestral, groq-gptoss-120b, openrouter-northcode-mini]
+    - groq-qwen-27b: [nvidia-glm-53, zai-glm47-flash, groq-gptoss-120b, mistral-ministral-14b, openrouter-northcode-mini]
     - google-gemini-flashlite: [mistral-ministral-8b, groq-gptoss-20b, mistral-ministral-3b, google-gemma-26b, openrouter-free]
 
     # Smart tier
-    - ollama-gptoss-120b: [groq-gptoss-120b, nvidia-nemotron-120b, nvidia-glm-53, ollama-gemma-31b]
-    - nvidia-glm-53: [nvidia-nemotron-550b, groq-gptoss-120b, ollama-gptoss-120b]
+    - ollama-gptoss-120b: [groq-gptoss-120b, nvidia-nemotron-120b, nvidia-glm-53]
+    - nvidia-glm-53: [nvidia-nemotron-550b, groq-gptoss-120b]
     - nvidia-nemotron-550b: [nvidia-glm-53, nvidia-nemotron-120b, groq-gptoss-120b, openrouter-nemotron-550b]
     - nvidia-nemotron-120b: [nvidia-nemotron-550b, groq-gptoss-120b, openrouter-nemotron-120b]
 
@@ -251,17 +251,17 @@ router_settings:
     - nvidia-nemotron-lightning: [nvidia-nemotron-120b, groq-gptoss-20b, mistral-ministral-14b]
 
     # Code tier
-    - ollama-gemma-31b: [groq-qwen-27b, nvidia-glm-53, ollama-gptoss-120b]
+    - ollama-gemma-31b: [groq-qwen-27b, nvidia-glm-53]
     - zai-glm47-flash: [nvidia-glm53-flash, zai-glm45-flash, groq-qwen-27b]
     - zai-glm45-flash: [zai-glm47-flash, nvidia-glm53-flash, groq-qwen-27b]
-    - zai-glm46v-flash: [zai-glm47-flash, ollama-gemma-31b, groq-qwen-27b]
+    - zai-glm46v-flash: [zai-glm47-flash, groq-qwen-27b]
     - nvidia-glm53-flash: [zai-glm47-flash, nvidia-glm-53, groq-qwen-27b]
     - mistral-codestral: [groq-qwen-27b, zai-glm47-flash, mistral-ministral-14b]
     - openrouter-glm-flash: [zai-glm47-flash, nvidia-glm53-flash, groq-qwen-27b]
 
-    # Slow Gemma 31B copies: last resort only, prefer the Ollama Cloud copy
-    - google-gemma-31b: [ollama-gemma-31b, groq-gptoss-120b, nvidia-nemotron-120b]
-    - nvidia-gemma-31b: [ollama-gemma-31b, google-gemma-31b, groq-gptoss-120b]
+    # Slow Gemma 31B copies: prefer healthy fast deployments when their primary fails
+    - google-gemma-31b: [groq-gptoss-120b, nvidia-nemotron-120b]
+    - nvidia-gemma-31b: [groq-gptoss-120b, nvidia-nemotron-120b, google-gemma-31b]
 
     # OpenRouter free tier (50 req/day): fall back within OpenRouter, then to Groq
     - openrouter-free: [openrouter-nemotron-120b, openrouter-ling-flash, groq-gptoss-120b]
@@ -271,7 +271,7 @@ router_settings:
     - openrouter-nemotron-lightning: [openrouter-nemotron-30b, nvidia-nemotron-lightning, groq-gptoss-20b]
     - openrouter-ling-flash: [openrouter-nemotron-120b, nvidia-nemotron-120b, groq-gptoss-120b]
     - openrouter-northcode-mini: [openrouter-laguna-s, zai-glm47-flash, groq-qwen-27b]
-    - openrouter-laguna-s: [openrouter-laguna-xs, openrouter-northcode-mini, groq-qwen-27b]
+    - openrouter-laguna-s: [openrouter-northcode-mini, openrouter-laguna-xs, groq-qwen-27b]
     - openrouter-laguna-xs: [openrouter-laguna-s, openrouter-northcode-mini, groq-qwen-27b]
     - openrouter-apodex-mini: [openrouter-nemotron-120b, nvidia-nemotron-120b, groq-gptoss-120b]
     - openrouter-dots-note: [openrouter-nemotron-550b, nvidia-nemotron-550b, groq-gptoss-120b]
@@ -282,7 +282,7 @@ router_settings:
   default_fallbacks: [groq-gptoss-120b, nvidia-nemotron-120b, google-gemini-flashlite]
 
 litellm_settings:
-  callbacks: request_log.request_logger   # request_log.py next to this file: one JSON line per request -> ~/llm/logs/requests.jsonl
+  callbacks: request_log.request_logger   # request_log.py next to this file: one JSON line per request -> logs/requests.jsonl
   drop_params: true   # strip params a provider does not support (e.g. Anthropic-only fields sent by Claude Code) instead of erroring
 
 general_settings:

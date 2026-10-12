@@ -19,7 +19,7 @@ from pathlib import Path
 
 # Path to the repository's config file (absolute, because the script may be run
 # from any working directory).
-CONFIG_PATH = Path("/Users/moti.koritz/litellm/config.yaml")
+CONFIG_PATH = Path(__file__).resolve().parents[1] / "config.yaml"
 
 if not CONFIG_PATH.is_file():
     sys.stderr.write(f"Error: config.yaml not found at {CONFIG_PATH}\n")

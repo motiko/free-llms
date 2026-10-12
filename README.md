@@ -27,11 +27,16 @@ quirks of each provider and the models that were tried and rejected.
 
 | Alias | Target | Falls back to |
 |---|---|---|
-| `smart` | Groq gpt-oss 120B | Ollama gpt-oss 120B, NVIDIA Nemotron 120B, NVIDIA GLM 5.3, Nemotron 550B, ... |
+| `smart` | Groq gpt-oss 120B | NVIDIA Nemotron 120B, NVIDIA GLM 5.3, Nemotron 550B, Groq Qwen, ... |
 | `fast` | Groq gpt-oss 20B | Gemini Flash-Lite, Ministral 14B, NVIDIA Nemotron 120B, ... |
-| `code` | Groq Qwen 3.8 27B | Ollama Gemma 31B, NVIDIA GLM 5.3, Z.ai GLM 4.7 Flash, Codestral, ... |
+| `code` | Groq Qwen 3.8 27B | NVIDIA GLM 5.3, Z.ai GLM 4.7 Flash, Groq gpt-oss 120B, Ministral 14B, ... |
 | `cheap` | Gemini 3.5 Flash-Lite | Ministral 8B, Groq gpt-oss 20B, Ministral 3B, ... |
 | `embed` | NVIDIA Nemotron 3 Embed 1B (2048 dims) | none |
+
+Ollama deployments remain available for direct requests, but are temporarily excluded from automatic
+fallback targets after this account reached its monthly quota on 2026-10-12. Restore them after quota
+renews and a successful recheck. Codestral remains available directly; the `code` chain uses models
+that passed the tool-call probe.
 
 Every model and every alias has its own fallback list because LiteLLM looks fallbacks up by the name the client
 sent, not by the alias target. Chains are ordered by the benchmark below.
@@ -39,11 +44,22 @@ sent, not by the alias target. Chains are ordered by the benchmark below.
 ## Setup
 
 ```sh
-git clone <this repo> ~/litellm && cd ~/litellm
-cp .env.example .env            # fill in the keys you have, delete config entries for the rest
-uv tool install litellm[proxy]  # or pip install 'litellm[proxy]'
-./run.sh                        # serves on 0.0.0.0:4000
+git clone https://github.com/motiko/free-llms.git
+cd free-llms
+./setup.sh
+# Fill in provider API keys in .env, then:
+./run.sh
 ```
+
+`./setup.sh` works on macOS and Linux with `sh`, `curl`, and internet access. It uses an existing
+`uv` or downloads it into `.tools/bin`, installs Python 3.12 if needed, and syncs the locked dependencies
+into `.venv`. It creates `.env` only when absent and keeps logs in `logs/`. No activation or global
+Python packages are needed. Run setup again after pulling dependency changes. Provider keys must still
+be supplied by you; remove unconfigured provider entries as described in `.env.example`.
+
+The checkout can live anywhere. Launchers resolve paths from their own location, even when called
+from another directory. The listener defaults to `127.0.0.1:4000`; set `LITELLM_BIND_HOST=0.0.0.0`
+and optionally `LITELLM_PORT` in `.env` for remote access. `LITELLM_REQUEST_LOG` overrides the log path.
 
 Change `general_settings.master_key` in `config.yaml` if the proxy is reachable from other machines. Clients send
 it as their API key.
@@ -52,7 +68,7 @@ Offline validation (no network, catches YAML and fallback typos):
 
 ```sh
 set -a; source .env; set +a
-~/.local/share/uv/tools/litellm/bin/python - <<'PY'
+.venv/bin/python - <<'PY'
 import yaml; from litellm import Router
 cfg = yaml.safe_load(open('config.yaml'))
 r = Router(model_list=cfg['model_list'], **cfg['router_settings'])
@@ -71,16 +87,33 @@ curl -s http://localhost:4000/v1/chat/completions -H "Authorization: Bearer sk-l
 Reasoning models (gpt-oss, GLM, Nemotron) spend output tokens on thinking first; a `max_tokens` below ~100 can
 return an empty reply.
 
-### Run as a macOS launchd daemon
+### Run in the background on macOS
 
-`com.local.litellm.plist.example` runs `run.sh` with `KeepAlive`, so a restart is just killing the process:
+After setup and adding your provider keys, run:
 
 ```sh
-sed "s#YOUR_USER#$USER#g" com.local.litellm.plist.example | sudo tee /Library/LaunchDaemons/com.local.litellm.plist
-mkdir -p ~/llm/logs
-sudo launchctl bootstrap system /Library/LaunchDaemons/com.local.litellm.plist
-pkill -f "bin/litellm"     # restart after editing config.yaml; launchd relaunches it within ~1s
+./service.sh start       # install the user LaunchAgent, start now, and enable login startup
+./service.sh status      # show launchd state, PID, and last exit code
+./service.sh logs        # follow stdout/stderr; Ctrl-C only stops the log viewer
+./service.sh restart     # apply config, .env, or callback changes
+./service.sh stop        # stop now and disable login startup until the next start
+./service.sh uninstall   # remove the LaunchAgent; preserve .env, .venv, and logs
 ```
+
+`./service.sh install` is an alias for `start`. These commands use your macOS login session and require
+no sudo. The generated `~/Library/LaunchAgents/com.motiko.free-llms.plist` points to this checkout,
+handles spaces/XML characters in paths, and keeps the process running after you close Terminal.
+It starts when you log in; it does not run before login or while the Mac is asleep. macOS uses
+[launchd to manage user agents](https://support.apple.com/en-ca/guide/terminal/apdc6c1077b-5d5d-4d35-9c19-60f2397b2369/mac).
+
+Service output goes to `logs/litellm.log`; request records remain in `logs/requests.jsonl`.
+`start` is safe to repeat; `restart` explicitly replaces the running process. If the checkout is moved,
+uninstall from the original location before moving, then rerun setup/start at the new location.
+One checkout can own this user service at a time. Stop any manually started proxy or legacy
+`com.local.litellm` system daemon on the same port before starting the user service.
+
+The optional `com.local.litellm.plist.example` remains available for administrators who need a system
+daemon before login. Replace its path/user placeholders before using it; it is separate from these commands.
 
 ## Using it with Claude Code
 
@@ -105,14 +138,16 @@ endpoint (the path Claude Code uses), a FizzBuzz code task whose output is execu
 probe fails if the proxy had to fall back to another deployment, even when the final answer was right.
 
 ```sh
-~/.local/share/uv/tools/litellm/bin/python bench/bench.py                   # everything
-~/.local/share/uv/tools/litellm/bin/python bench/bench.py --skip openrouter-   # spare the OpenRouter quota
+.venv/bin/python bench/bench.py                   # everything
+.venv/bin/python bench/bench.py --skip openrouter-   # spare the OpenRouter quota
 ```
 
 Results land in `bench/results/<timestamp>.md` and `.json`; `bench/results/NOTES.md` has the conclusions.
-Headline from Oct 2026: Groq answers in under 1s, Ollama Cloud and NVIDIA Nemotron 120B in about 1s, GLM
-models in 4 to 20s because of reasoning tokens, and Gemma 4 31B on Google and NVIDIA takes 30 to 130s per call
-while the same model on Ollama Cloud takes under 1s.
+Latest run (`20261012-0239`): 28/33 models passed every probe (77/88 probes passed); the paid
+OpenRouter GLM entry was excluded. Groq and Gemini Flash-Lite answered in under 1s; NVIDIA Nemotron
+120B averaged 0.9s. Ollama quota was exhausted, Codestral missed the tool call, Laguna XS hit an
+upstream rate limit, and NVIDIA Gemma timed out at 150s on all probes. Google Gemma passed but
+averaged 81s. The `embed` alias passed a separate 2048-dimension check.
 
 If you use Claude Code, `.claude/skills/bench/SKILL.md` lets it run and interpret the benchmark with `/bench`.
 
@@ -120,7 +155,10 @@ If you use Claude Code, `.claude/skills/bench/SKILL.md` lets it run and interpre
 
 ```
 config.yaml                     model list, aliases, fallbacks
+setup.sh                        installs the checkout-local environment
+pyproject.toml / uv.lock        dependencies and reproducible versions
 run.sh                          sources .env, starts the proxy
+service.sh / scripts/service.py macOS background service commands
 .env.example                    provider keys template
 claude-free                     Claude Code launcher
 bench/bench.py                  benchmark script

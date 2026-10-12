@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""reqlog - query the LiteLLM request log (~/llm/logs/requests.jsonl written by request_log.py).
+"""reqlog - query the LiteLLM request log (logs/requests.jsonl written by request_log.py).
 
 usage: reqlog [-f FILE] [--since 24h|7d|YYYY-MM-DD] [--alias NAME] [--model SUBSTR] [--provider NAME] COMMAND
 
@@ -25,8 +25,9 @@ examples
 """
 import argparse, collections, datetime as dt, json, os, re, statistics, sys, urllib.request
 
-LOG = os.environ.get("LITELLM_REQUEST_LOG", os.path.expanduser("~/llm/logs/requests.jsonl"))
-ENV = os.path.expanduser("~/litellm/.env")
+HERE = os.path.dirname(os.path.abspath(__file__))
+LOG = os.environ.get("LITELLM_REQUEST_LOG", os.path.join(HERE, "logs", "requests.jsonl"))
+ENV = os.path.join(HERE, ".env")
 # known free-tier daily request caps, for the `rate` view (edit as plans change)
 DAILY_CAPS = {"gemini": 1000, "openrouter": 50, "groq": 14400, "mistral": None, "nvidia_nim": None, "zai": None, "openai": None}
 
@@ -271,7 +272,7 @@ def cmd_quota(a, rows):
 
 TLDR = """
 reqlog
-Query the LiteLLM request log (~/llm/logs/requests.jsonl) for routing, latency, errors, cost and quota.
+Query the LiteLLM request log (logs/requests.jsonl) for routing, latency, errors, cost and quota.
 Filters work with every command: --since 24h|7d|30m|YYYY-MM-DD, --alias NAME, --model SUBSTR, --provider NAME.
 More information: reqlog -h
 
